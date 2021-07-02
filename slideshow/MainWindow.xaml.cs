@@ -3,6 +3,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using static SlideShow.Utils;
 
 namespace SlideShow
 {
@@ -41,6 +42,7 @@ namespace SlideShow
 
         void ShowNextImage()
         {
+            Log("画像を切り替えます。");
             if (!_ImageFileList.MoveNext())
             {
                 if (_LoopOption)

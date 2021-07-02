@@ -11,7 +11,7 @@ namespace SlideShow
             if (Directory.Exists(filePath))
             {
                 var entries = Directory.GetFileSystemEntries(filePath);
-                Log("ディレクトリでした");
+                //Log("ディレクトリでした");
                 return new FilePathImageFileStreamSeries(entries);
             }
 
@@ -22,7 +22,6 @@ namespace SlideShow
                 Log("ZIPファイルでした");
                 return s;
             }
-            Log("ディレクトリでもZIPファイルでもありませんでした");
             return null;
         }
     }

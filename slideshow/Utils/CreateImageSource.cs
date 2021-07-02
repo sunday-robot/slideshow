@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -19,12 +20,20 @@ namespace SlideShow
         /// <returns></returns>
         public static ImageSource CreateImageSource(Stream stream)
         {
-            var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.Default);
-            //if (decoder == null)
-            //{
-            //    Console.WriteLine("ImageSourceCreator#Create()" + stream + " failed.");
-            //}
-            return decoder.Frames[0];
+            try
+            {
+                var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.Default);
+                //if (decoder == null)
+                //{
+                //    Console.WriteLine("ImageSourceCreator#Create()" + stream + " failed.");
+                //}
+                return decoder.Frames[0];
+            }
+            catch (NotSupportedException e)
+            {
+                Log(e.ToString());
+                return null;
+            }
         }
     }
 }

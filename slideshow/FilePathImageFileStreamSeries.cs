@@ -45,13 +45,12 @@ namespace SlideShow
             _CurrentIndex++;
             var filePath = _FilePathList[_CurrentIndex];
 
-            Log(filePath);
+            Log($"{filePath}をチェックします。");
 
             _ImageSourceSeries = CreateImageFileStreamSeries(filePath);
             if (_ImageSourceSeries != null)
             {
-                Log("シリーズでした");
-
+                //Log("シリーズでした");
                 if (_ImageSourceSeries.MoveFirst())
                     return true;
                 Log("シリーズでしたが、内容がありませんでした。");
