@@ -1,111 +1,149 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using static SlideShow.Utils;
 
 namespace SlideShow
 {
     class FilePathImageFileStreamSeries : IImageFileStreamSeries
     {
-        List<string> _FilePathList;
-        int _CurrentIndex;
+        readonly List<string> _FilePathList;
+        readonly Func<bool> _IsLoopFunc;
+        int _NextIndex;
         IImageFileStreamSeries _ImageSourceSeries;
-        ImageSource _ImageSource;
 
-        public FilePathImageFileStreamSeries(string[] filePathList) : this(new List<string>(filePathList))
+        public FilePathImageFileStreamSeries(string[] filePathList, Func<bool> isLoopFunc) : this(new List<string>(filePathList), isLoopFunc)
         {
         }
 
-        public FilePathImageFileStreamSeries(IEnumerable<string> filePathList)
+        public FilePathImageFileStreamSeries(IEnumerable<string> filePathList, Func<bool> isLoopFunc)
         {
-            this._FilePathList = new List<string>(filePathList);
-            _CurrentIndex = -1;
+            _FilePathList = new List<string>(filePathList);
+            _IsLoopFunc = isLoopFunc;
+            _NextIndex = 0;
             _ImageSourceSeries = null;
-            MoveNext();
+            //MoveNext();
         }
 
-        public ImageSource Current {
-            get {
-                if (_ImageSourceSeries != null)
-                    return _ImageSourceSeries.Current;
-                return _ImageSource;
-            }
-        }
+        //public ImageSource Current {
+        //    get {
+        //        if (_ImageSourceSeries != null)
+        //            return _ImageSourceSeries.Current;
+        //        return _ImageSource;
+        //    }
+        //}
 
-        public bool MoveNext()
+        public ImageSource GetNext()
         {
+            ImageSource imageSource;
+        l:
             if (_ImageSourceSeries != null)
             {
-                if (_ImageSourceSeries.MoveNext())
-                    return true;
+                imageSource = _ImageSourceSeries.GetNext();
+                if (imageSource != null)
+                    return imageSource;
                 _ImageSourceSeries = null;
             }
         l_first:
-            if (_CurrentIndex == _FilePathList.Count - 1)
-                return false;
-            _CurrentIndex++;
-            var filePath = _FilePathList[_CurrentIndex];
-
-            Log($"{filePath}をチェックします。");
-
+            if (_NextIndex == _FilePathList.Count)
+            {
+                if (_IsLoopFunc())
+                    _NextIndex = 0;
+                else
+                    return null;
+            }
+            var filePath = _FilePathList[_NextIndex++];
             _ImageSourceSeries = CreateImageFileStreamSeries(filePath);
             if (_ImageSourceSeries != null)
-            {
-                //Log("シリーズでした");
-                if (_ImageSourceSeries.MoveFirst())
-                    return true;
-                Log("シリーズでしたが、内容がありませんでした。");
-                _ImageSourceSeries = null;
-            }
-            _ImageSource = CreateImageSource(filePath);
-            if (_ImageSource != null)
-            {
-                Log("画像ファイルでした");
+                goto l;
 
-                return true;
-            }
+            imageSource = CreateImageSource(filePath);
+            if (imageSource != null)
+                return imageSource;
             goto l_first;
         }
 
-        public bool MovePrevious()
+        //public bool MovePrevious()
+        //{
+        //    if (_ImageSourceSeries != null)
+        //    {
+        //        if (_ImageSourceSeries.MovePrevious())
+        //            return true;
+        //        _ImageSourceSeries = null;
+        //    }
+        //l_first:
+        //    if (_CurrentIndex == 0)
+        //        return false;
+        //    _CurrentIndex--;
+        //    var filePath = _FilePathList[_CurrentIndex];
+        //    _ImageSourceSeries = CreateImageFileStreamSeries(filePath);
+        //    if (_ImageSourceSeries != null)
+        //    {
+        //        if (_ImageSourceSeries.MoveLast())
+        //            return true;
+        //        _ImageSourceSeries = null;
+        //    }
+        //    _ImageSource = CreateImageSource(filePath);
+        //    if (_ImageSource != null)
+        //    {
+        //        return true;
+        //    }
+        //    goto l_first;
+        //}
+
+        //public bool MoveFirst()
+        //{
+        //    _ImageSourceSeries = null;
+        //    _CurrentIndex = -1;
+        //    return MoveNext();
+        //}
+
+        //public bool MoveLast()
+        //{
+        //    _ImageSourceSeries = null;
+        //    _CurrentIndex = _FilePathList.Count;
+        //    return MovePrevious();
+        //}
+
+        static ImageSource CreateImageSource(string filePath)
         {
-            if (_ImageSourceSeries != null)
+            if (!IsImageFile(filePath))
             {
-                if (_ImageSourceSeries.MovePrevious())
-                    return true;
-                _ImageSourceSeries = null;
+                Log($"{filePath}は画像ファイルではないので無視します。");
+                return null;
             }
-        l_first:
-            if (_CurrentIndex == 0)
-                return false;
-            _CurrentIndex--;
-            var filePath = _FilePathList[_CurrentIndex];
-            _ImageSourceSeries = CreateImageFileStreamSeries(filePath);
-            if (_ImageSourceSeries != null)
+
+            Log($"{filePath}を表示します。");
+            try
             {
-                if (_ImageSourceSeries.MoveLast())
-                    return true;
-                _ImageSourceSeries = null;
-            }
-            _ImageSource = CreateImageSource(filePath);
-            if (_ImageSource != null)
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                return CreateImageSourceFromStream(stream);
+            }catch (IOException e)
             {
-                return true;
+                Log("ファイルがオープンできません。無視して続行します。");
+                Log(e.ToString());
+                return null;
             }
-            goto l_first;
         }
 
-        public bool MoveFirst()
+        public static IImageFileStreamSeries CreateImageFileStreamSeries(string filePath)
         {
-            _ImageSourceSeries = null;
-            _CurrentIndex = -1;
-            return MoveNext();
-        }
+            if (Directory.Exists(filePath))
+            {
+                Log($"ディレクトリ{filePath}をチェックします。");
+                var entries = Directory.GetFileSystemEntries(filePath);
+                return new FilePathImageFileStreamSeries(entries, () => false);
+            }
 
-        public bool MoveLast()
-        {
-            _ImageSourceSeries = null;
-            _CurrentIndex = _FilePathList.Count;
-            return MovePrevious();
+            if (Path.GetExtension(filePath).ToUpper() == ".ZIP")
+            {
+                Log($"ZIPファイル{filePath}をチェックします。");
+                var s = new ZipArchiveImageSourceSeries(filePath);
+                return s;
+            }
+            return null;
         }
     }
 }

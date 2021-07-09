@@ -22,16 +22,11 @@ namespace SlideShow
         int _IntervalOption = 2000;
 
         bool _IsFullScreenMode = false;
-
-        DispatcherTimer _DispatcherTimer = new DispatcherTimer();
+        readonly DispatcherTimer _DispatcherTimer = new();
 
         public MainWindow()
         {
-            _ImageFileList = new FilePathImageFileStreamSeries(Environment.GetCommandLineArgs().Skip(1));
-            if (_ImageFileList.Current == null)
-            {
-                Close();
-            }
+            _ImageFileList = new FilePathImageFileStreamSeries(Environment.GetCommandLineArgs().Skip(1), () => _LoopOption);
 
             _LoopOption = true;
 
@@ -42,30 +37,24 @@ namespace SlideShow
 
         void ShowNextImage()
         {
-            Log("画像を切り替えます。");
-            if (!_ImageFileList.MoveNext())
+            Log("次の画像を表示します。");
+            var imageSource = _ImageFileList.GetNext();
+            if (imageSource == null)
             {
-                if (_LoopOption)
-                {
-                    _ImageFileList.MoveFirst();
-                }
-                else
-                {
-                    Close();
-                    return;
-                }
-
+                Log("次の画像はないので終了します。");
+                Close();
+                return;
             }
-            image.Source = _ImageFileList.Current;
+            image.Source = imageSource;
         }
 
         void ShowPreviousImage()
         {
-            if (!_ImageFileList.MovePrevious())
-            {
-                _ImageFileList.MoveFirst();
-            }
-            image.Source = _ImageFileList.Current;
+            //if (!_ImageFileList.MovePrevious())
+            //{
+            //    _ImageFileList.MoveFirst();
+            //}
+            //image.Source = _ImageFileList.Current;
         }
 
         void Forward()
@@ -145,9 +134,7 @@ namespace SlideShow
 
         void Window_Initialized(object sender, EventArgs e)
         {
-            image.Source = _ImageFileList.Current;
-
-            //            _ShowNextImage();
+            ShowNextImage();
             _DispatcherTimer.Start();
         }
     }
