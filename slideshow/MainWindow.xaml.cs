@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using static SlideShow.Utils;
 
 namespace SlideShow
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow : System.Windows.Window
     {
         readonly FilePathImageFileStreamSeries _ImageFileList;
 
@@ -26,7 +27,12 @@ namespace SlideShow
 
         public MainWindow()
         {
-            _ImageFileList = new FilePathImageFileStreamSeries(Environment.GetCommandLineArgs().Skip(1), () => _LoopOption);
+            Log("開始");
+            //var filePathList = new List<string> { "image_0.jpg", "b/image_1.jpg", "b/image_2.jpg", "b/image_3.jpg", "b/a/image_4.jpg", "b/a/aa/image_5.jpg" };
+            //var filePathList = new List<string> { "a/aa/非アスキー文字.zip" };
+            var filePathList = new List<string> { "b" };
+            //_ImageFileList = new FilePathImageFileStreamSeries(Environment.GetCommandLineArgs().Skip(1), () => _LoopOption);
+            _ImageFileList = new FilePathImageFileStreamSeries(filePathList, () => _LoopOption);
 
             _LoopOption = true;
 
@@ -45,7 +51,13 @@ namespace SlideShow
                 Close();
                 return;
             }
+#if false
             image.Source = imageSource;
+#else
+            var mat = OpenCvSharp.WpfExtensions.BitmapSourceConverter.ToMat((BitmapSource)imageSource);
+            var bs = OpenCvSharp.WpfExtensions.BitmapSourceConverter.ToBitmapSource(mat);
+            image.Source = bs;
+#endif
         }
 
         void ShowPreviousImage()

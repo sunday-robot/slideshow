@@ -4,7 +4,7 @@ namespace SlideShow
 {
     interface IImageFileStreamSeries
     {
-//        ImageSource Current { get; }
+        //ImageSource Current { get; }
 
         ImageSource GetNext();
 

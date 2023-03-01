@@ -7,16 +7,11 @@ namespace SlideShow
         public static bool IsImageFile(string filePath)
         {
             var ext = Path.GetExtension(filePath).ToUpper();
-            switch (ext)
+            return ext switch
             {
-                case ".BMP":
-                case ".JPG":
-                case ".PNG":
-                    return true;
-                default:
-                    //Log($"{filePath}は画像ファイルではないので無視します。");
-                    return false;
-            }
+                ".BMP" or ".JPG" or ".PNG" => true,
+                _ => false,//Log($"{filePath}は画像ファイルではないので無視します。");
+            };
         }
     }
 }

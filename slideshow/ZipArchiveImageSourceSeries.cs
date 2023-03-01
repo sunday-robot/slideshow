@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO.Compression;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using static SlideShow.Utils;
 
 namespace SlideShow

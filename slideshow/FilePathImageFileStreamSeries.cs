@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using static SlideShow.Utils;
 
 namespace SlideShow
@@ -13,6 +12,19 @@ namespace SlideShow
         readonly Func<bool> _IsLoopFunc;
         int _NextIndex;
         IImageFileStreamSeries _ImageSourceSeries;
+
+        public override string ToString()
+        {
+            var sb = "FilePathImageFileStreamSeries(";
+            for (var i = 0; i < _FilePathList.Count; i++)
+            {
+                if (i == _NextIndex)
+                    sb += ",=>" + _FilePathList[i];
+                else
+                    sb += "," + _FilePathList[i];
+            }
+            return sb + ")";
+        }
 
         public FilePathImageFileStreamSeries(string[] filePathList, Func<bool> isLoopFunc) : this(new List<string>(filePathList), isLoopFunc)
         {
@@ -120,7 +132,8 @@ namespace SlideShow
             {
                 using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
                 return CreateImageSourceFromStream(stream);
-            }catch (IOException e)
+            }
+            catch (IOException e)
             {
                 Log("ファイルがオープンできません。無視して続行します。");
                 Log(e.ToString());
@@ -128,6 +141,12 @@ namespace SlideShow
             }
         }
 
+        /// <summary>
+        /// 指定されたパス名から、ImageFileStreamSeriesを生成する。
+        /// パスがディレクトリ、あるいはZIPファイルではない場合はnullを返す。
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         public static IImageFileStreamSeries CreateImageFileStreamSeries(string filePath)
         {
             if (Directory.Exists(filePath))
@@ -143,6 +162,7 @@ namespace SlideShow
                 var s = new ZipArchiveImageSourceSeries(filePath);
                 return s;
             }
+            Log($"{filePath}は、ディレクトリでも、ZIPファイルでもありません。");
             return null;
         }
     }

@@ -1,0 +1,9 @@
+﻿[*.cs]
+
+# Default severity for all analyzer diagnostics
+
+# IDE0008: 明示的な型の使用
+dotnet_diagnostic.IDE0008.severity = none
+
+# IDE0040: アクセシビリティ修飾子を追加します
+dotnet_diagnostic.IDE0040.severity = none
