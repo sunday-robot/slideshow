@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "SlideShow": {
+      "commandName": "Project",
+      "workingDirectory": "E:\\Akiyama\\src\\slideshow\\Test"
+    }
+  }
+}
