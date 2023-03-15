@@ -27,23 +27,30 @@ namespace SlideShow
 
         public MainWindow()
         {
-            Log("開始");
             //var filePathList = new List<string> { "image_0.jpg", "b/image_1.jpg", "b/image_2.jpg", "b/image_3.jpg", "b/a/image_4.jpg", "b/a/aa/image_5.jpg" };
             //var filePathList = new List<string> { "a/aa/非アスキー文字.zip" };
-            var filePathList = new List<string> { "b" };
-            //_ImageFileList = new FilePathImageFileStreamSeries(Environment.GetCommandLineArgs().Skip(1), () => _LoopOption);
+            //var filePathList = new List<string> { "b" };
+            var filePathList = new List<string>(Environment.GetCommandLineArgs()[1..^0]);// コマンドラインオプションに指定されたパス名のリストを取得する。(先頭の要素は実行ファイルのパス名なので無視している。)
+//            filePathList.RemoveAt(0);
+
+            Log("以下の画像ファイル/フォルダ内の画像ファイル/Zipファイル内の画像を表示します。");
+            filePathList.ForEach((e) =>
+            {
+                Log($"    {e}");
+            });
+
             _ImageFileList = new FilePathImageFileStreamSeries(filePathList, () => _LoopOption);
 
             _LoopOption = true;
 
             _DispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, _IntervalOption);
-            _DispatcherTimer.Tick += (object sender, EventArgs e) => ShowNextImage();
+            _DispatcherTimer.Tick += (object? sender, EventArgs e) => ShowNextImage();
             InitializeComponent();
         }
 
         void ShowNextImage()
         {
-            Log("次の画像を表示します。");
+            //Log("次の画像を表示します。");
             var imageSource = _ImageFileList.GetNext();
             if (imageSource == null)
             {
@@ -53,10 +60,13 @@ namespace SlideShow
             }
 #if false
             image.Source = imageSource;
-#else
+#elif true
             var mat = OpenCvSharp.WpfExtensions.BitmapSourceConverter.ToMat((BitmapSource)imageSource);
             var bs = OpenCvSharp.WpfExtensions.BitmapSourceConverter.ToBitmapSource(mat);
             image.Source = bs;
+#else
+            imageSource.be
+            image.Source = imageSource;
 #endif
         }
 
@@ -71,6 +81,7 @@ namespace SlideShow
 
         void Forward()
         {
+            Log("次に進みます。");
             ShowNextImage();
             if (_DispatcherTimer.IsEnabled)
             {
@@ -82,6 +93,7 @@ namespace SlideShow
 
         void Backward()
         {
+            Log("前に戻ります。");
             ShowPreviousImage();
             if (_DispatcherTimer.IsEnabled)
             {
@@ -90,16 +102,27 @@ namespace SlideShow
             }
         }
 
-        void PauseOrResume()
+        void Pause()
         {
             if (_DispatcherTimer.IsEnabled)
+            {
+                Log("一時停止します。");
                 _DispatcherTimer.Stop();
-            else
+            }
+        }
+
+        void Resume()
+        {
+            if (!_DispatcherTimer.IsEnabled)
+            {
+                Log("再開します。");
                 _DispatcherTimer.Start();
+            }
         }
 
         void QuitApplication()
         {
+            Log("終了します。");
             this.Close();
         }
 
@@ -107,19 +130,22 @@ namespace SlideShow
         {
             switch (e.Key)
             {
-                case Key.Right:
+                case Key.Space:
                     Forward();
                     break;
-                case Key.Left:
+                case Key.Back:
                     Backward();
                     break;
-                case Key.Space:
-                    PauseOrResume();
+                case Key.P:
+                    Pause();
+                    break;
+                case Key.S:
+                    Resume();
                     break;
                 case Key.Escape:
                     QuitApplication();
                     break;
-                case Key.F:
+                case Key.Enter:
                     ToggleFullScreenMode();
                     break;
                 default:
@@ -132,12 +158,14 @@ namespace SlideShow
             _IsFullScreenMode = !_IsFullScreenMode;
             if (_IsFullScreenMode)
             {
+                Log("フルスクリーンモードにします。");
                 this.WindowStyle = WindowStyle.None;
                 this.WindowState = WindowState.Maximized;
                 this.Topmost = true;
             }
             else
             {
+                Log("フルスクリーンモードを解除します。");
                 this.WindowStyle = WindowStyle.SingleBorderWindow;
                 this.WindowState = WindowState.Normal;
                 this.Topmost = false;

@@ -62,7 +62,10 @@ namespace SlideShow
             if (_NextIndex == _FilePathList.Count)
             {
                 if (_IsLoopFunc())
+                {
+                    Log("初めに戻ります。");
                     _NextIndex = 0;
+                }
                 else
                     return null;
             }
@@ -135,8 +138,15 @@ namespace SlideShow
             }
             catch (IOException e)
             {
-                Log("ファイルがオープンできません。無視して続行します。");
-                Log(e.ToString());
+                if (e is FileNotFoundException)
+                {
+                    Log("ファイルが存在しません。無視して続行します。");
+                }
+                else
+                {
+                    Log("ファイルがオープンできません。無視して続行します。");
+                    Log(e.ToString());
+                }
                 return null;
             }
         }
@@ -162,7 +172,7 @@ namespace SlideShow
                 var s = new ZipArchiveImageSourceSeries(filePath);
                 return s;
             }
-            Log($"{filePath}は、ディレクトリでも、ZIPファイルでもありません。");
+            //Log($"{filePath}は、ディレクトリでも、ZIPファイルでもありません。");
             return null;
         }
     }
