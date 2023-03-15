@@ -2,3 +2,4 @@
 /slideshow/bin
 /.vs
 /slideshow/slideshow.csproj.user
+/slideshow/Properties/launchSettings.json
