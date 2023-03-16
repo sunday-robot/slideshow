@@ -6,7 +6,7 @@ namespace SlideShow
     {
         //ImageSource Current { get; }
 
-        ImageSource GetNext();
+        ImageSource? GetNext();
 
         ///// <summary>
         ///// ポインタをひとつ前の要素に移す

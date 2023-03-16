@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -21,6 +20,8 @@ namespace SlideShow
         public static ImageSource CreateImageSourceFromStream(Stream stream)
         {
 #if false
+// BitmapDecoderを使用してみる
+#if false
 // 以下のやり方では、画面に画像が表示されない。デコード処理をやらずに終わってしまっていると思われる。
             var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.Default);
             var bitmapFrame = decoder.Frames[0];
@@ -34,7 +35,16 @@ namespace SlideShow
             encoder.Save(ws);
 #endif
             return bitmapFrame;
+#else
+// オプション指定で何かしらよくなるかと思ったが全くダメ。
+            //var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
+            //var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.Default);
+            var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.OnLoad);
+            var frame0 = decoder.Frames[0];
+            return frame0;
+#endif
 #elif false
+// BitmapFrameを使用してみる
             // 以下のページを参考にした。bitmapFrameをそのまま返すと、画面に表示されない(デコード処理をやらずに終わってしまっていると思われる)
             var bitmapFrame = BitmapFrame.Create(stream);
             var wbmp = new WriteableBitmap(bitmapFrame);
@@ -48,6 +58,7 @@ namespace SlideShow
 #endif
             return wbmp;
 #elif false
+// OpenCvSharpを使用してみる
 #if true
             var ms = new MemoryStream();
             stream.CopyTo(ms);
@@ -58,19 +69,13 @@ namespace SlideShow
 #endif
             var bs = OpenCvSharp.WpfExtensions.BitmapSourceConverter.ToBitmapSource(mat);
             return bs;
-#elif true
+#else
+            // Imagingを使用してみる
             var bmp = Bitmap.FromStream(stream);
             var hbmp = ((Bitmap)bmp).GetHbitmap();
             var bs = Imaging.CreateBitmapSourceFromHBitmap(hbmp, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
             DeleteObject(hbmp);
             return bs;
-#else
-// 再挑戦したがやはりわからない...
-            //var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.None, BitmapCacheOption.OnLoad);
-            //var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.Default);
-            var decoder = BitmapDecoder.Create(stream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.OnLoad);
-            var frame0 = decoder.Frames[0];
-            return frame0;
 #endif
         }
     }

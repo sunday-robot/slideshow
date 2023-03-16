@@ -11,7 +11,7 @@ namespace SlideShow
         readonly List<string> _FilePathList;
         readonly Func<bool> _IsLoopFunc;
         int _NextIndex;
-        IImageFileStreamSeries _ImageSourceSeries;
+        IImageFileStreamSeries? _ImageSourceSeries;
 
         public override string ToString()
         {
@@ -47,9 +47,9 @@ namespace SlideShow
         //    }
         //}
 
-        public ImageSource GetNext()
+        public ImageSource? GetNext()
         {
-            ImageSource imageSource;
+            ImageSource? imageSource;
         l:
             if (_ImageSourceSeries != null)
             {
@@ -122,7 +122,7 @@ namespace SlideShow
         //    return MovePrevious();
         //}
 
-        static ImageSource CreateImageSource(string filePath)
+        static ImageSource? CreateImageSource(string filePath)
         {
             if (!IsImageFile(filePath))
             {
@@ -157,7 +157,7 @@ namespace SlideShow
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        public static IImageFileStreamSeries CreateImageFileStreamSeries(string filePath)
+        public static IImageFileStreamSeries? CreateImageFileStreamSeries(string filePath)
         {
             if (Directory.Exists(filePath))
             {

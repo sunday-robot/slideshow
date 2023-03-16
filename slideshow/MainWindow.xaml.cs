@@ -31,7 +31,7 @@ namespace SlideShow
             //var filePathList = new List<string> { "a/aa/非アスキー文字.zip" };
             //var filePathList = new List<string> { "b" };
             var filePathList = new List<string>(Environment.GetCommandLineArgs()[1..^0]);// コマンドラインオプションに指定されたパス名のリストを取得する。(先頭の要素は実行ファイルのパス名なので無視している。)
-//            filePathList.RemoveAt(0);
+                                                                                         //            filePathList.RemoveAt(0);
 
             Log("以下の画像ファイル/フォルダ内の画像ファイル/Zipファイル内の画像を表示します。");
             filePathList.ForEach((e) =>
