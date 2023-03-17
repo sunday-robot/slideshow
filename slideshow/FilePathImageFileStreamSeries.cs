@@ -9,7 +9,7 @@ namespace SlideShow
     class FilePathImageFileStreamSeries : IImageFileStreamSeries
     {
         readonly List<string> _FilePathList;
-        readonly Func<bool> _IsLoopFunc;
+        readonly Func<bool> _LoopsFunc;
         int _NextIndex;
         IImageFileStreamSeries? _ImageSourceSeries;
 
@@ -30,10 +30,10 @@ namespace SlideShow
         {
         }
 
-        public FilePathImageFileStreamSeries(IEnumerable<string> filePathList, Func<bool> isLoopFunc)
+        public FilePathImageFileStreamSeries(IEnumerable<string> filePathList, Func<bool> loopsFunc)
         {
             _FilePathList = new List<string>(filePathList);
-            _IsLoopFunc = isLoopFunc;
+            _LoopsFunc = loopsFunc;
             _NextIndex = 0;
             _ImageSourceSeries = null;
             //MoveNext();
@@ -61,7 +61,7 @@ namespace SlideShow
         l_first:
             if (_NextIndex == _FilePathList.Count)
             {
-                if (_IsLoopFunc())
+                if (_LoopsFunc())
                 {
                     Log("初めに戻ります。");
                     _NextIndex = 0;

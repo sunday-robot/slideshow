@@ -29,11 +29,10 @@ namespace SlideShow
         {
             //var filePathList = new List<string> { "image_0.jpg", "b/image_1.jpg", "b/image_2.jpg", "b/image_3.jpg", "b/a/image_4.jpg", "b/a/aa/image_5.jpg" };
             //var filePathList = new List<string> { "a/aa/非アスキー文字.zip" };
-            //var filePathList = new List<string> { "b" };
-            var filePathList = new List<string>(Environment.GetCommandLineArgs()[1..^0]);// コマンドラインオプションに指定されたパス名のリストを取得する。(先頭の要素は実行ファイルのパス名なので無視している。)
-                                                                                         //            filePathList.RemoveAt(0);
+            var filePathList = new List<string> { "b" };
+            //var filePathList = new List<string>(Environment.GetCommandLineArgs()[1..^0]);// コマンドラインオプションに指定されたパス名のリストを取得する。(先頭の要素は実行ファイルのパス名なので無視している。)
 
-            Log("以下の画像ファイル/フォルダ内の画像ファイル/Zipファイル内の画像を表示します。");
+            Log("以下の画像ファイル、フォルダあるいはZipファイル内の画像ファイルを表示します。");
             filePathList.ForEach((e) =>
             {
                 Log($"    {e}");
