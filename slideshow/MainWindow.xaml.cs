@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using static SlideShow.Utils;
 
@@ -57,16 +56,7 @@ namespace SlideShow
                 Close();
                 return;
             }
-#if false
             image.Source = imageSource;
-#elif true
-            var mat = OpenCvSharp.WpfExtensions.BitmapSourceConverter.ToMat((BitmapSource)imageSource);
-            var bs = OpenCvSharp.WpfExtensions.BitmapSourceConverter.ToBitmapSource(mat);
-            image.Source = bs;
-#else
-            imageSource.be
-            image.Source = imageSource;
-#endif
         }
 
         void ShowPreviousImage()
