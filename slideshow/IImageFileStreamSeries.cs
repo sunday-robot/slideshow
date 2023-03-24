@@ -8,6 +8,8 @@ namespace SlideShow
 
         ImageSource? GetNext();
 
+        ImageSource? GetPrevious();
+
         ///// <summary>
         ///// ポインタをひとつ前の要素に移す
         ///// </summary>

@@ -42,6 +42,21 @@ namespace SlideShow
             return null;
         }
 
+        public ImageSource? GetPrevious()
+        {
+            while (_NextIndex >= 0)
+            {
+                var entry = _ZipArchiveEntries[_NextIndex--];
+                if (IsImageFile(entry.FullName))
+                {
+                    Log($"{_ZipfilePath}/{entry.FullName}を表示します。");
+                    using var stream = entry.Open();
+                    return CreateImageSourceFromStream(stream);
+                }
+            }
+            return null;
+        }
+
         //public bool MovePrevious()
         //{
         //    if (_CurrentIndex == 0)

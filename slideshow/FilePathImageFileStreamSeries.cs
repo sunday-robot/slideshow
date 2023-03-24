@@ -80,6 +80,39 @@ namespace SlideShow
             goto l_first;
         }
 
+        public ImageSource? GetPrevious()
+        {
+            ImageSource? imageSource;
+        l:
+            if (_ImageSourceSeries != null)
+            {
+                imageSource = _ImageSourceSeries.GetPrevious();
+                if (imageSource != null)
+                    return imageSource;
+                _ImageSourceSeries = null;
+            }
+        l_first:
+            if (_NextIndex == 0)
+            {
+                if (_LoopsFunc())
+                {
+                    Log("初めに戻ります。");
+                    _NextIndex = 0;
+                }
+                else
+                    return null;
+            }
+            var filePath = _FilePathList[_NextIndex++];
+            _ImageSourceSeries = CreateImageFileStreamSeries(filePath);
+            if (_ImageSourceSeries != null)
+                goto l;
+
+            imageSource = CreateImageSource(filePath);
+            if (imageSource != null)
+                return imageSource;
+            goto l_first;
+        }
+
         //public bool MovePrevious()
         //{
         //    if (_ImageSourceSeries != null)
@@ -175,5 +208,6 @@ namespace SlideShow
             //Log($"{filePath}は、ディレクトリでも、ZIPファイルでもありません。");
             return null;
         }
+
     }
 }
